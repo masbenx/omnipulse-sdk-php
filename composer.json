@@ -1,8 +1,17 @@
 {
     "name": "omnipulse/omnipulse-php",
-    "description": "Official PHP SDK for OmniPulse Monitoring",
+    "description": "Official PHP SDK for OmniPulse Monitoring - APM, Logs, Traces",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "monitoring",
+        "apm",
+        "logging",
+        "tracing",
+        "observability",
+        "laravel",
+        "symfony"
+    ],
     "autoload": {
         "psr-4": {
             "OmniPulse\\": "src/"
@@ -15,6 +24,17 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
+    },
+    "suggest": {
+        "illuminate/support": "Required for Laravel integration",
+        "symfony/http-kernel": "Required for Symfony Bundle"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "OmniPulse\\Laravel\\OmniPulseServiceProvider"
+            ]
+        }
     },
     "minimum-stability": "stable"
 }
