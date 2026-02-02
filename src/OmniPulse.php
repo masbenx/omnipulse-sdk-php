@@ -6,12 +6,14 @@ class OmniPulse
 {
     private static $instance = null;
     private $logger;
+    private $tracer;
     private $config;
 
     private function __construct($config)
     {
         $this->config = $config;
         $this->logger = new Logger($config);
+        $this->tracer = new Tracer($config);
     }
 
     public static function init($config)
@@ -33,6 +35,19 @@ class OmniPulse
             throw new \RuntimeException("OmniPulse SDK not initialized. Call OmniPulse::init() first.");
         }
         return self::$instance->logger;
+    }
+
+    /**
+     * Get the tracer instance for distributed tracing
+     * 
+     * @return Tracer
+     */
+    public static function tracer()
+    {
+        if (self::$instance === null) {
+            throw new \RuntimeException("OmniPulse SDK not initialized. Call OmniPulse::init() first.");
+        }
+        return self::$instance->tracer;
     }
 
     /**
