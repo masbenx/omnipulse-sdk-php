@@ -1,3 +1,7 @@
+## [v1.0.77] - 2026-02-10
+### Changed
+- Automated release via script.
+
 ## [v1.0.76] - 2026-02-10
 ### Changed
 - Automated release via script.
