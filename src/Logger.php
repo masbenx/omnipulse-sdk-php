@@ -41,9 +41,9 @@ class Logger
         $this->logs[] = [
             'level' => $level,
             'message' => $message,
-            'service_name' => $this->config['service_name'] ?? 'unknown-service',
+            'service' => $this->config['service_name'] ?? 'unknown-service',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'), // ISO 8601 UTC
-            'tags' => $context
+            'meta' => $context
         ];
 
         if (count($this->logs) >= $this->maxBufferSize) {
@@ -57,7 +57,7 @@ class Logger
             return;
         }
 
-        $payload = json_encode(['logs' => $this->logs]);
+        $payload = json_encode(['entries' => $this->logs]);
         $this->logs = []; // Clear buffer immediately
 
         $this->sendPayload($payload);
@@ -67,7 +67,7 @@ class Logger
     {
         try {
             // Use config from OmniPulse class or passed config
-            $url = ($this->config['server_url'] ?? 'http://localhost:8080') . '/api/ingest/logs';
+            $url = ($this->config['server_url'] ?? 'http://localhost:8080') . '/api/ingest/app-logs';
             $token = $this->config['token'] ?? '';
 
             // FastCGI Finish Request if available to avoid blocking user
