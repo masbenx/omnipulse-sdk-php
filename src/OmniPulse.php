@@ -66,7 +66,7 @@ class OmniPulse
         }
 
         $config = self::$instance->config;
-        $url = ($config['server_url'] ?? 'http://localhost:8080') . '/api/ingest/logs';
+        $url = ($config['server_url'] ?? 'http://localhost:8080') . '/api/ingest/app-logs';
         $token = $config['token'] ?? '';
 
         if (empty($token)) {
@@ -82,9 +82,9 @@ class OmniPulse
                 [
                     'level' => 'info',
                     'message' => 'OmniPulse SDK test connection successful',
-                    'service_name' => $config['service_name'] ?? 'test-service',
+                    'service' => $config['service_name'] ?? 'test-service',
                     'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-                    'tags' => [
+                    'meta' => [
                         'sdk' => 'php',
                         'test' => 'true',
                         'php_version' => PHP_VERSION
