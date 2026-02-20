@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
-        'name' => 'omnipulse/omnipulse-php',
+        'name' => 'omnipulse/php-sdk',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => 'b4b9ba149e4d46261fcfee4ca8e0f53223b3f4be',
+        'reference' => '27a1721523534405e9b388a41018ef2fa22979e0',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -37,10 +37,10 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
-        'omnipulse/omnipulse-php' => array(
+        'omnipulse/php-sdk' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => 'b4b9ba149e4d46261fcfee4ca8e0f53223b3f4be',
+            'reference' => '27a1721523534405e9b388a41018ef2fa22979e0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

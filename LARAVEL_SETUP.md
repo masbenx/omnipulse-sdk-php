@@ -9,9 +9,10 @@ This guide explains how to integrate the OmniPulse PHP SDK into your Laravel app
 
 ## Installation
 
-1. Install via Composer:
+1. Install via Composer (tambahkan repo Git secara manual ke `composer.json`):
 
 ```bash
+composer config repositories.omnipulse vcs https://github.com/masbenx/omnipulse-sdk-php
 composer require omnipulse/php-sdk
 ```
 

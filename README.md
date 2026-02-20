@@ -4,7 +4,10 @@ The official PHP SDK for [OmniPulse](https://omnipulse.cloud) - a unified monito
 
 ## Installation
 
+Karena SDK belum tersedia public di Packagist, tambahkan repositori GitHub ke file `composer.json` proyek Anda:
+
 ```bash
+composer config repositories.omnipulse vcs https://github.com/masbenx/omnipulse-sdk-php
 composer require omnipulse/php-sdk
 ```
 

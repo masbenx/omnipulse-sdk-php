@@ -1,5 +1,5 @@
 {
-    "name": "omnipulse/omnipulse-php",
+    "name": "omnipulse/php-sdk",
     "description": "Official PHP SDK for OmniPulse Monitoring - APM, Logs, Traces",
     "type": "library",
     "license": "MIT",
