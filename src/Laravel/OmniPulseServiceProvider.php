@@ -12,6 +12,10 @@ use OmniPulse\OmniPulse;
  * OmniPulse\Laravel\OmniPulseServiceProvider::class,
  * 
  * Or for Laravel 11+ with auto-discovery, it will be registered automatically.
+ * 
+ * Required .env variables:
+ *   OMNIPULSE_SERVER_URL=https://your-omnipulse-instance.com
+ *   OMNIPULSE_INGEST_KEY=your-ingest-key
  */
 class OmniPulseServiceProvider extends ServiceProvider
 {
@@ -26,10 +30,12 @@ class OmniPulseServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(OmniPulse::class, function ($app) {
-            return new OmniPulse(
-                config('omnipulse.api_url'),
-                config('omnipulse.ingest_key')
-            );
+            return OmniPulse::init([
+                'server_url' => config('omnipulse.server_url'),
+                'token' => config('omnipulse.ingest_key'),
+                'service_name' => config('omnipulse.service_name', 'laravel-app'),
+                'env' => config('omnipulse.environment', 'production'),
+            ]);
         });
     }
 
@@ -55,11 +61,16 @@ class OmniPulseServiceProvider extends ServiceProvider
      */
     private function initializeOmniPulse(): void
     {
-        $apiUrl = config('omnipulse.api_url');
+        $serverUrl = config('omnipulse.server_url');
         $ingestKey = config('omnipulse.ingest_key');
 
-        if ($apiUrl && $ingestKey) {
-            OmniPulse::init($apiUrl, $ingestKey);
+        if ($serverUrl && $ingestKey) {
+            OmniPulse::init([
+                'server_url' => $serverUrl,
+                'token' => $ingestKey,
+                'service_name' => config('omnipulse.service_name', 'laravel-app'),
+                'env' => config('omnipulse.environment', 'production'),
+            ]);
         }
     }
 

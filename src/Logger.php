@@ -67,7 +67,7 @@ class Logger
     {
         try {
             // Use config from OmniPulse class or passed config
-            $url = ($this->config['server_url'] ?? 'http://localhost:8080') . '/api/ingest/app-logs';
+            $url = $this->config['server_url'] . '/api/ingest/app-logs';
             $token = $this->config['token'] ?? '';
 
             // FastCGI Finish Request if available to avoid blocking user
