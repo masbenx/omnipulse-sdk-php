@@ -3,13 +3,17 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | OmniPulse API URL
+    | OmniPulse Server URL
     |--------------------------------------------------------------------------
     |
-    | The URL of your OmniPulse backend API server.
+    | The URL of your OmniPulse backend server.
+    | For SaaS: https://omnipulse-api.semraw.cloud
+    | For on-premise: https://omnipulse.your-domain.com
+    |
+    | Falls back to OMNIPULSE_URL env var if OMNIPULSE_SERVER_URL is not set.
     |
     */
-    'api_url' => env('OMNIPULSE_API_URL', 'https://api.omnipulse.cloud'),
+    'server_url' => env('OMNIPULSE_SERVER_URL', env('OMNIPULSE_URL', '')),
 
     /*
     |--------------------------------------------------------------------------
@@ -21,6 +25,16 @@ return [
     |
     */
     'ingest_key' => env('OMNIPULSE_INGEST_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Service Name
+    |--------------------------------------------------------------------------
+    |
+    | The name of this application/service as it appears in OmniPulse.
+    |
+    */
+    'service_name' => env('OMNIPULSE_SERVICE_NAME', env('APP_NAME', 'laravel-app')),
 
     /*
     |--------------------------------------------------------------------------

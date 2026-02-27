@@ -175,7 +175,7 @@ class Tracer
     private function sendPayload(string $payload): void
     {
         try {
-            $url = ($this->config['server_url'] ?? 'http://localhost:8080') . '/api/ingest/app-traces';
+            $url = $this->config['server_url'] . '/api/ingest/app-traces';
             $token = $this->config['token'] ?? '';
 
             // FastCGI Finish Request if available to avoid blocking user

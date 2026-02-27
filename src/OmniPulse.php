@@ -16,17 +16,75 @@ class OmniPulse
         $this->tracer = new Tracer($config);
     }
 
-    public static function init($config)
+    /**
+     * Initialize the OmniPulse SDK
+     *
+     * @param array|string $config Configuration array or server_url string
+     *   Required keys:
+     *   - 'server_url': The OmniPulse backend URL (SaaS or on-premise)
+     *   - 'token': The X-Ingest-Key for authentication
+     *   Optional keys:
+     *   - 'service_name': Application identifier (default: 'unknown-service')
+     *   - 'env': 'production' or 'development' (default: 'production')
+     *
+     * Alternative: init($serverUrl, $ingestKey) for quick setup
+     *
+     * Falls back to OMNIPULSE_URL env var if server_url is not provided.
+     *
+     * @return self|null
+     */
+    public static function init($configOrUrl, $ingestKey = null)
     {
-        if (self::$instance === null) {
-            self::$instance = new self($config);
+        if (self::$instance !== null) {
+            return self::$instance;
         }
+
+        // Support both: init($config) and init($url, $key)
+        if (is_string($configOrUrl)) {
+            $config = [
+                'server_url' => $configOrUrl,
+                'token' => $ingestKey ?? '',
+            ];
+        } else {
+            $config = $configOrUrl;
+        }
+
+        // Resolve server_url: config > env var
+        if (empty($config['server_url'])) {
+            $config['server_url'] = getenv('OMNIPULSE_URL') ?: '';
+        }
+
+        // Validate required fields
+        if (empty($config['server_url'])) {
+            error_log('[OmniPulse] server_url is required. Set it in config or via OMNIPULSE_URL environment variable.');
+            return null;
+        }
+
+        if (empty($config['token'])) {
+            error_log('[OmniPulse] token (X-Ingest-Key) is required.');
+            return null;
+        }
+
+        // Remove trailing slash from server_url
+        $config['server_url'] = rtrim($config['server_url'], '/');
+
+        self::$instance = new self($config);
         return self::$instance;
     }
 
     public static function getInstance()
     {
         return self::$instance;
+    }
+
+    /**
+     * Check if the SDK is properly configured
+     *
+     * @return bool
+     */
+    public static function isConfigured(): bool
+    {
+        return self::$instance !== null;
     }
 
     public static function logger()
@@ -66,7 +124,7 @@ class OmniPulse
         }
 
         $config = self::$instance->config;
-        $url = ($config['server_url'] ?? 'http://localhost:8080') . '/api/ingest/app-logs';
+        $url = $config['server_url'] . '/api/ingest/app-logs';
         $token = $config['token'] ?? '';
 
         if (empty($token)) {
@@ -120,6 +178,7 @@ class OmniPulse
                 return [
                     'success' => false,
                     'message' => 'Connection failed: ' . $error,
+                    'endpoint' => $url,
                     'http_code' => $httpCode
                 ];
             }
@@ -127,7 +186,8 @@ class OmniPulse
             if ($httpCode >= 200 && $httpCode < 300) {
                 return [
                     'success' => true,
-                    'message' => 'Connection successful! Test log sent.',
+                    'message' => 'Connection successful! Test log sent to ' . $config['server_url'],
+                    'endpoint' => $url,
                     'http_code' => $httpCode,
                     'response' => json_decode($result, true)
                 ];
@@ -136,6 +196,7 @@ class OmniPulse
             return [
                 'success' => false,
                 'message' => 'Request failed with HTTP ' . $httpCode,
+                'endpoint' => $url,
                 'http_code' => $httpCode,
                 'response' => json_decode($result, true)
             ];
@@ -176,4 +237,3 @@ class OmniPulse
         ];
     }
 }
-
