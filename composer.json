@@ -22,6 +22,11 @@
         "ext-json": "*",
         "ext-curl": "*"
     },
+    "config": {
+        "platform": {
+            "php": "7.4.0"
+        }
+    },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
     },
