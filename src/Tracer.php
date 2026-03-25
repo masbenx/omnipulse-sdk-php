@@ -152,6 +152,51 @@ class Tracer
     }
 
     /**
+     * Generate a new Span ID (16 char hex)
+     * Useful for middleware
+     */
+    public static function generateSpanId(): string
+    {
+        return bin2hex(random_bytes(8));
+    }
+
+    /**
+     * Generate a new Trace ID (32 char hex)
+     * Useful for middleware
+     */
+    public static function generateTraceId(): string
+    {
+        return bin2hex(random_bytes(16));
+    }
+
+    /**
+     * Statically record a raw span array
+     * Safely checks if OmniPulse is configured first
+     * 
+     * @param array $spanData The fully constructed span array
+     */
+    public static function recordSpan(array $spanData): void
+    {
+        if (OmniPulse::isConfigured()) {
+            OmniPulse::tracer()->addRawSpan($spanData);
+        }
+    }
+
+    /**
+     * Add a pre-constructed raw span to the buffer
+     * 
+     * @param array $spanData
+     */
+    public function addRawSpan(array $spanData): void
+    {
+        $this->spans[] = $spanData;
+        if (count($this->spans) >= $this->maxBufferSize) {
+            $this->flush();
+        }
+    }
+
+
+    /**
      * Flush spans to backend
      */
     public function flush(): void
