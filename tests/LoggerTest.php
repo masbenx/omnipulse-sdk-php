@@ -33,7 +33,7 @@ class LoggerTest extends TestCase
         $this->assertCount(1, $logs);
         $this->assertEquals('info', $logs[0]['level']);
         $this->assertEquals('test message', $logs[0]['message']);
-        $this->assertEquals('test-service', $logs[0]['service_name']);
+        $this->assertEquals('test-service', $logs[0]['service']);
     }
 
     public function testAllLogLevels(): void
@@ -64,8 +64,8 @@ class LoggerTest extends TestCase
         $this->logger->info('user logged in', ['user_id' => 123, 'ip' => '192.168.1.1']);
 
         $logs = $logsProp->getValue($this->logger);
-        $this->assertEquals(123, $logs[0]['tags']['user_id']);
-        $this->assertEquals('192.168.1.1', $logs[0]['tags']['ip']);
+        $this->assertEquals(123, $logs[0]['meta']['user_id']);
+        $this->assertEquals('192.168.1.1', $logs[0]['meta']['ip']);
     }
 
     public function testLogTimestampFormat(): void
@@ -122,6 +122,6 @@ class LoggerTest extends TestCase
         $logger->info('test');
         $logs = $logsProp->getValue($logger);
 
-        $this->assertEquals('unknown-service', $logs[0]['service_name']);
+        $this->assertEquals('unknown-service', $logs[0]['service']);
     }
 }

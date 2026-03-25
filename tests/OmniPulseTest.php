@@ -153,6 +153,6 @@ class OmniPulseTest extends TestCase
 
         $result = OmniPulse::test();
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('No token configured', $result['message']);
+        $this->assertStringContainsString('not initialized', $result['message']);
     }
 }
