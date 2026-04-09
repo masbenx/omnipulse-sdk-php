@@ -129,6 +129,15 @@ class OmniPulseMiddleware
                 'status_code' => $statusCode >= 400 ? 'error' : 'ok',
                 'attributes' => $attributes,
             ]);
+
+            OmniPulse::logRequest([
+                'timestamp' => gmdate('Y-m-d\TH:i:s\Z', (int)$startTime),
+                'method' => $request->method(),
+                'route' => $request->route()?->uri() ?? $request->path(),
+                'status' => $statusCode,
+                'duration_ms' => (int)$durationMs,
+                'trace_id' => $traceId
+            ]);
         } catch (\Throwable $e) {
             // Fail silently - don't affect the application
             error_log('[OmniPulse] Failed to record trace: ' . $e->getMessage());
