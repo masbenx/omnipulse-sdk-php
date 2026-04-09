@@ -109,6 +109,16 @@ class OmniPulse
     }
 
     /**
+     * Log a completed HTTP Request summary (for APM metrics)
+     */
+    public static function logRequest(array $requestData): void
+    {
+        if (self::$instance !== null) {
+            self::$instance->tracer->logRequest($requestData);
+        }
+    }
+
+    /**
      * Test connection to OmniPulse backend
      * Sends a test log entry and verifies the connection
      * 

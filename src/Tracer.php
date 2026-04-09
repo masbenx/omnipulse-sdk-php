@@ -20,6 +20,7 @@ namespace OmniPulse;
 class Tracer
 {
     private $spans = [];
+    private $requests = [];
     private $maxBufferSize = 50;
     private $config;
     private static $currentContext = null;
@@ -195,32 +196,57 @@ class Tracer
         }
     }
 
+    /**
+     * Add a request log for APM
+     */
+    public function logRequest(array $requestData): void
+    {
+        if (empty($requestData['timestamp'])) {
+            $requestData['timestamp'] = $this->nowMicro();
+        }
+        if (empty($requestData['env'])) {
+            $requestData['env'] = $this->config['env'] ?? 'production';
+        }
+
+        $this->requests[] = $requestData;
+        if (count($this->requests) >= $this->maxBufferSize) {
+            $this->flush();
+        }
+    }
+
 
     /**
      * Flush spans to backend
      */
     public function flush(): void
     {
-        if (empty($this->spans)) {
-            return;
+        if (!empty($this->spans)) {
+            $payload = json_encode([
+                'service_name' => $this->config['service_name'] ?? 'unknown-service',
+                'spans' => $this->spans
+            ]);
+            $this->spans = []; // Clear buffer immediately
+            $this->sendPayload($payload, '/api/ingest/app-traces');
         }
 
-        $payload = json_encode([
-            'service_name' => $this->config['service_name'] ?? 'unknown-service',
-            'spans' => $this->spans
-        ]);
-        $this->spans = []; // Clear buffer immediately
-
-        $this->sendPayload($payload);
+        if (!empty($this->requests)) {
+            $reqPayload = json_encode($this->requests);
+            $this->requests = [];
+            // Multiple requests can be sent manually or we loop
+            $payloads = json_decode($reqPayload, true);
+            foreach($payloads as $req) {
+                 $this->sendPayload(json_encode($req), '/api/ingest/app-request');
+            }
+        }
     }
 
     /**
      * Send payload to backend
      */
-    private function sendPayload(string $payload): void
+    private function sendPayload(string $payload, string $path): void
     {
         try {
-            $url = $this->config['server_url'] . '/api/ingest/app-traces';
+            $url = $this->config['server_url'] . $path;
             $token = $this->config['token'] ?? '';
 
             // FastCGI Finish Request if available to avoid blocking user
