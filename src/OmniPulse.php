@@ -166,6 +166,51 @@ class OmniPulse
         self::sendPayload($payload, '/api/ingest/app-errors');
     }
 
+    /**
+     * Capture an outbound external network request (Service Map dependency)
+     */
+    public static function captureOutgoing(array $outgoingData): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        if (empty($outgoingData['env'])) {
+            $outgoingData['env'] = $config['env'] ?? 'production';
+        }
+        $payload = json_encode($outgoingData);
+        self::sendPayload($payload, '/api/ingest/app-outgoing');
+    }
+
+    /**
+     * Capture a database query execution (Insights)
+     */
+    public static function captureQuery(array $queryData): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        if (empty($queryData['env'])) {
+            $queryData['env'] = $config['env'] ?? 'production';
+        }
+        $payload = json_encode($queryData);
+        self::sendPayload($payload, '/api/ingest/app-query');
+    }
+
+    /**
+     * Capture cache set/get operations (Insights)
+     */
+    public static function captureCache(array $cacheData): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        if (empty($cacheData['env'])) {
+            $cacheData['env'] = $config['env'] ?? 'production';
+        }
+        $payload = json_encode($cacheData);
+        self::sendPayload($payload, '/api/ingest/app-cache');
+    }
+
     private static function sendPayload(string $payload, string $endpoint): void
     {
         try {
