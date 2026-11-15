@@ -245,6 +245,9 @@ class Tracer
      */
     private function sendPayload(string $payload, string $path): void
     {
+        if (empty($this->config['server_url']) || empty($this->config['token'])) {
+            return;
+        }
         try {
             $url = $this->config['server_url'] . $path;
             $token = $this->config['token'] ?? '';

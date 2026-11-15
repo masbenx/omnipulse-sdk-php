@@ -90,7 +90,7 @@ class OmniPulse
     public static function logger()
     {
         if (self::$instance === null) {
-            throw new \RuntimeException("OmniPulse SDK not initialized. Call OmniPulse::init() first.");
+            return new Logger([]);
         }
         return self::$instance->logger;
     }
@@ -103,7 +103,7 @@ class OmniPulse
     public static function tracer()
     {
         if (self::$instance === null) {
-            throw new \RuntimeException("OmniPulse SDK not initialized. Call OmniPulse::init() first.");
+            return new Tracer([]);
         }
         return self::$instance->tracer;
     }
@@ -115,6 +115,134 @@ class OmniPulse
     {
         if (self::$instance !== null) {
             self::$instance->tracer->logRequest($requestData);
+        }
+    }
+
+    /**
+     * Capture application specific metric
+     */
+    public static function captureMetric(array $metricData): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        $payload = json_encode([
+            'service_name' => $config['service_name'] ?? 'php-app',
+            'environment' => $config['env'] ?? 'production',
+            'metrics' => [$metricData]
+        ]);
+        self::sendPayload($payload, '/api/ingest/app-metrics');
+    }
+
+    /**
+     * Log a background job execution
+     */
+    public static function captureJob(array $jobData): void
+    {
+        if (self::$instance === null) return;
+        
+        $payload = json_encode(array_merge([
+            'ts' => gmdate('Y-m-d\TH:i:s\Z')
+        ], $jobData));
+        self::sendPayload($payload, '/api/ingest/app-job');
+    }
+
+    /**
+     * Manually capture an error
+     */
+    public static function captureError(\Throwable $error, array $meta = []): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        $payload = json_encode([
+            'type' => get_class($error),
+            'message' => $error->getMessage(),
+            'stack' => $error->getTraceAsString(),
+            'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
+            'service' => $config['service_name'] ?? 'php-app',
+            'meta' => $meta
+        ]);
+        self::sendPayload($payload, '/api/ingest/app-errors');
+    }
+
+    /**
+     * Capture an outbound external network request (Service Map dependency)
+     */
+    public static function captureOutgoing(array $outgoingData): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        if (empty($outgoingData['env'])) {
+            $outgoingData['env'] = $config['env'] ?? 'production';
+        }
+        $payload = json_encode($outgoingData);
+        self::sendPayload($payload, '/api/ingest/app-outgoing');
+    }
+
+    /**
+     * Capture a database query execution (Insights)
+     */
+    public static function captureQuery(array $queryData): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        if (empty($queryData['env'])) {
+            $queryData['env'] = $config['env'] ?? 'production';
+        }
+        $payload = json_encode($queryData);
+        self::sendPayload($payload, '/api/ingest/app-query');
+    }
+
+    /**
+     * Capture cache set/get operations (Insights)
+     */
+    public static function captureCache(array $cacheData): void
+    {
+        if (self::$instance === null) return;
+        
+        $config = self::$instance->config;
+        if (empty($cacheData['env'])) {
+            $cacheData['env'] = $config['env'] ?? 'production';
+        }
+        $payload = json_encode($cacheData);
+        self::sendPayload($payload, '/api/ingest/app-cache');
+    }
+
+    private static function sendPayload(string $payload, string $endpoint): void
+    {
+        try {
+            $config = self::$instance->config;
+            $url = $config['server_url'] . $endpoint;
+            $token = $config['token'] ?? '';
+
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            }
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'X-Ingest-Key: ' . $token,
+                'User-Agent: omnipulse-php-sdk/v1.0.0'
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // Fire and forget behavior
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500); 
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 500);
+
+            if (($config['env'] ?? 'production') === 'development') {
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            }
+
+            curl_exec($ch);
+            curl_close($ch);
+        } catch (\Throwable $e) {
+            // Silently fail to not kill the host app
         }
     }
 

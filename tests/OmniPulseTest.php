@@ -57,10 +57,11 @@ class OmniPulseTest extends TestCase
 
     // --- Logger Accessor ---
 
-    public function testLoggerThrowsBeforeInit(): void
+    public function testLoggerFailSafeBeforeInit(): void
     {
-        $this->expectException(\RuntimeException::class);
-        OmniPulse::logger();
+        $logger = OmniPulse::logger();
+        $this->assertInstanceOf(Logger::class, $logger);
+        $logger->info('fail-safe log before init');
     }
 
     public function testLoggerReturnsInstance(): void
@@ -76,10 +77,12 @@ class OmniPulseTest extends TestCase
 
     // --- Tracer Accessor ---
 
-    public function testTracerThrowsBeforeInit(): void
+    public function testTracerFailSafeBeforeInit(): void
     {
-        $this->expectException(\RuntimeException::class);
-        OmniPulse::tracer();
+        $tracer = OmniPulse::tracer();
+        $this->assertInstanceOf(Tracer::class, $tracer);
+        $span = $tracer->startSpan('fail-safe-span');
+        $tracer->endSpan($span);
     }
 
     public function testTracerReturnsInstance(): void
