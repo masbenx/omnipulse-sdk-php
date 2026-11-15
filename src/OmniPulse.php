@@ -90,7 +90,7 @@ class OmniPulse
     public static function logger()
     {
         if (self::$instance === null) {
-            throw new \RuntimeException("OmniPulse SDK not initialized. Call OmniPulse::init() first.");
+            return new Logger([]);
         }
         return self::$instance->logger;
     }
@@ -103,7 +103,7 @@ class OmniPulse
     public static function tracer()
     {
         if (self::$instance === null) {
-            throw new \RuntimeException("OmniPulse SDK not initialized. Call OmniPulse::init() first.");
+            return new Tracer([]);
         }
         return self::$instance->tracer;
     }

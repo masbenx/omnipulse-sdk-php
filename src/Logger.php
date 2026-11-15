@@ -65,6 +65,9 @@ class Logger
 
     private function sendPayload($payload)
     {
+        if (empty($this->config['server_url']) || empty($this->config['token'])) {
+            return;
+        }
         try {
             // Use config from OmniPulse class or passed config
             $url = $this->config['server_url'] . '/api/ingest/app-logs';
