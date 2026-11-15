@@ -269,8 +269,8 @@ class Tracer
             curl_setopt($ch, CURLOPT_TIMEOUT, 1); // Fail-safe: 1 second timeout
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
 
-            // SSL Verification
-            if (($this->config['env'] ?? 'production') === 'development') {
+            // SSL Verification (requires explicit allow_insecure_ssl in development)
+            if (($this->config['env'] ?? 'production') === 'development' && !empty($this->config['allow_insecure_ssl'])) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             }
 

@@ -235,7 +235,7 @@ class OmniPulse
             curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500); 
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 500);
 
-            if (($config['env'] ?? 'production') === 'development') {
+            if (($config['env'] ?? 'production') === 'development' && !empty($config['allow_insecure_ssl'])) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             }
 
@@ -303,7 +303,7 @@ class OmniPulse
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 
             // SSL Verification
-            if (($config['env'] ?? 'production') === 'development') {
+            if (($config['env'] ?? 'production') === 'development' && !empty($config['allow_insecure_ssl'])) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             }
 
